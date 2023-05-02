@@ -6,38 +6,37 @@
 
 void randomizeMatrix(int **matrix, int row, int collumn) {
 	for (int i = 0; i < row; ++i) {
-	        for (int j = 0; j < collumn; ++j) {
-        	        matrix[i][j] = rand()%100; // = 1 for sum check
-	        }
+	    for (int j = 0; j < collumn; ++j) {
+    	    matrix[i][j] = /*rand()%100*/1; // = 1 for sum check
+        }
 	}
 }
 
 int** mallocMatrix(int **matrix, int row, int collumn) {
 	matrix = malloc(sizeof(int*) * row);
 	for (int i = 0; i < row; ++i) {
-        	matrix[i] = malloc(sizeof(int) * collumn);
+    	matrix[i] = malloc(sizeof(int) * collumn);
 	}
 	return matrix;
 }
 
 int** freeMatrix(int **matrix, int row) {
-        for (int i = 0; i < row; ++i) {
-                free(matrix[i]);
-        }
-        free(matrix);
-	/*matrix = NULL;*/
+    for (int i = 0; i < row; ++i) {
+        free(matrix[i]);
+    }
+    free(matrix);
 	return matrix;
 }
 
 struct param {
-        int* start;
-        int* end;
-		int*** matrixA;
-		int*** matrixB;
-		int*** matrixC;
-		int* M;
-		int* N;
-		int* L;
+    int* start;
+	int* end;
+	int*** matrixA;
+	int*** matrixB;
+	int*** matrixC;
+	int* M;
+	int* N;
+	int* L;
 };
 
 void do_count(int i_st, int i_ed, int j_st, int j_ed, int** A, int** B, int** C, int N) {
@@ -134,21 +133,22 @@ void main() {
 	for (int i = 0; i < p; i++) {
 		pthread_join(th[i], NULL);
 	}
-	struct timespec end;
-	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
 
-	double time_spent = (end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec)/1000000000.0;
-	printf("Time spent (CPU): %lf\n", time_spent);
-
-	/*int Summ = 0;
+	int Summ = 0;
 	for (int i = 0; i < M; i++) {
 		for (int j = 0; j < L; j++) {
 			Summ = Summ + C[i][j];
 		}
 	}
-	printf("Summ: %d\n", Summ);*/ //Sum check if needed
+	printf("Summ: %d\n", Summ); //Sum check if needed
 
 	mMN = freeMatrix(mMN, M);
 	mNL = freeMatrix(mNL, N);
 	C = freeMatrix(C, M);
+
+	struct timespec end;
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
+
+	double time_spent = (end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec)/1000000000.0;
+	printf("Time spent (CPU): %lf\n", time_spent);
 }

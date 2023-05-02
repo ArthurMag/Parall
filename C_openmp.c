@@ -4,31 +4,30 @@
 #include <unistd.h>
 #include <omp.h>
 
-int M = 1000, N = 1000, L = 1000, p = 4;
+int M = 1000, N = 1000, L = 1000, p = 10;
 int **mMN, **mNL, **C;
 
 void randomizeMatrix(int **matrix, int row, int collumn) {
 	for (int i = 0; i < row; ++i) {
-	        for (int j = 0; j < collumn; ++j) {
-        	        matrix[i][j] = rand()%100; // = 1 for sum check
-	        }
+	    for (int j = 0; j < collumn; ++j) {
+    	    matrix[i][j] = /*rand()%100*/1; // = 1 for sum check
+        }
 	}
 }
 
 int** mallocMatrix(int **matrix, int row, int collumn) {
 	matrix = malloc(sizeof(int*) * row);
 	for (int i = 0; i < row; ++i) {
-        	matrix[i] = malloc(sizeof(int) * collumn);
+        matrix[i] = malloc(sizeof(int) * collumn);
 	}
 	return matrix;
 }
 
 int** freeMatrix(int **matrix, int row) {
-        for (int i = 0; i < row; ++i) {
-                free(matrix[i]);
-        }
-        free(matrix);
-	/*matrix = NULL;*/
+    for (int i = 0; i < row; ++i) {
+        free(matrix[i]);
+    }
+    free(matrix);
 	return matrix;
 }
 
@@ -43,7 +42,7 @@ void do_count(int i_st, int i_ed, int j_st, int j_ed) {
 			C[i][j] = 0;
 			for (int k = 0; k < N; ++k) {
 				C[i][j] = C[i][j] + mMN[i][k]*mNL[k][j];
-				}
+			}
 		}
 	}		
 }
@@ -123,6 +122,19 @@ void main() {
 			do_count(0, M, start, end);	
 		}	
 	}
+
+	int Summ = 0;
+	for (int i = 0; i < M; i++) {
+		for (int j = 0; j < L; j++) {
+			Summ = Summ + C[i][j];
+		}
+	}
+	printf("Summ: %d\n", Summ); //Sum check if needed
+
+	mMN = freeMatrix(mMN, M);
+	mNL = freeMatrix(mNL, N);
+	C = freeMatrix(C, M);
+
 	struct timespec end;
 	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
 	double e_timer = omp_get_wtime();	
@@ -132,15 +144,4 @@ void main() {
 	double omp_time = e_timer - s_timer;
 	printf("Time spent (OMP): %lf\n", omp_time);
 	printf("Actual threads amount created: %d\n", threads);
-	/*int Summ = 0;
-	for (int i = 0; i < M; i++) {
-		for (int j = 0; j < L; j++) {
-			Summ = Summ + C[i][j];
-		}
-	}
-	printf("Summ: %d\n", Summ);*/ //Sum check if needed
-
-	mMN = freeMatrix(mMN, M);
-	mNL = freeMatrix(mNL, N);
-	C = freeMatrix(C, M);
 }

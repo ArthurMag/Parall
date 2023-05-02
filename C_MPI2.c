@@ -4,19 +4,19 @@
 #include <unistd.h>
 #include <mpi.h>
 
-int M = 2000, N = 2000, L = 2000;
+int M = 1000, N = 1000, L = 1000;
 
 void randomizeMatrix(int **matrix, int row, int collumn) {
 	for (int i = 0; i < row; ++i) {
-	        for (int j = 0; j < collumn; ++j) {
-        	        matrix[i][j] = rand()%100; // = 1 for sum check
-	        }
+		for (int j = 0; j < collumn; ++j) {
+			matrix[i][j] = rand()%100; // = 1 for sum check
+		}
 	}
 }
 
 int** freeMatrix(int **matrix) {
-        free(matrix[0]);
-        free(matrix);
+	free(matrix[0]);
+	free(matrix);
 	return matrix;
 }
 
@@ -35,7 +35,7 @@ void get_result(int **A, int **B, int **Res, int num_task) {
 			Res[i][j] = 0;
 			for (int k = 0; k < num_task; ++k) {
 				Res[i][j] = Res[i][j] + A[k][i]*B[k][j];
-				}
+			}
 			//Res[0][0] = Res[0][0] + Res[i][j]; // Sum check
 		}
 	}

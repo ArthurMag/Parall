@@ -7,35 +7,35 @@
 
 void randomizeMatrix(int **matrix, int row, int collumn) {
 	for (int i = 0; i < row; ++i) {
-	        for (int j = 0; j < collumn; ++j) {
-        	        matrix[i][j] = /*rand()%100*/1; // = 1 for sum check
-	        }
+	    for (int j = 0; j < collumn; ++j) {
+			matrix[i][j] = /*rand()%100*/1; // = 1 for sum check
+        }
 	}
 }
 
 int** mallocMatrix(int **matrix, int row, int collumn) {
 	matrix = malloc(sizeof(int*) * row);
 	for (int i = 0; i < row; ++i) {
-        	matrix[i] = malloc(sizeof(int) * collumn);
+        matrix[i] = malloc(sizeof(int) * collumn);
 	}
 	return matrix;
 }
 
 int** freeMatrix(int **matrix, int row) {
-        for (int i = 0; i < row; ++i) {
-                free(matrix[i]);
-        }
-        free(matrix);
+    for (int i = 0; i < row; ++i) {
+        free(matrix[i]);
+    }
+    free(matrix);
 	return matrix;
 }
 
 struct param {
-        int* start;
-        int* end;
-		int*** matrixA;
-		int*** matrixB;
-		int* M;
-		int* L;
+    int* start;
+    int* end;
+	int*** matrixA;
+	int*** matrixB;
+	int* M;
+	int* L;
 };
 
 void do_count(int M, int L, int start, int end, int** A, int** B, int** locC) {
@@ -107,7 +107,6 @@ void main() {
 	pthread_t th[p];
 	struct param *arg[p];
 	int startA[p], endA[p];
-	pthread_mutex_init(&mutex, NULL);
 	for (int i = 0; i < p; i++) {
 		arg[i] = malloc(sizeof(struct param));
 		startA[i] = 0;
@@ -133,11 +132,6 @@ void main() {
 		}
 		freeMatrix(LclC, M);
 	}
-	struct timespec end;
-	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
-
-	double time_spent = (end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec)/1000000000.0;
-	printf("Time spent (CPU): %lf\n", time_spent);
 
 	int Summ = 0;
 	for (int i = 0; i < M; i++) {
@@ -150,4 +144,10 @@ void main() {
 	mMN = freeMatrix(mMN, M);
 	mNL = freeMatrix(mNL, N);
 	C = freeMatrix(C, M);
+
+	struct timespec end;
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
+
+	double time_spent = (end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec)/1000000000.0;
+	printf("Time spent (CPU): %lf\n", time_spent);
 }
