@@ -8,25 +8,25 @@ int M = 1000, N = 1000, L = 1000;
 
 void randomizeMatrix(int **matrix, int row, int collumn) {
 	for (int i = 0; i < row; ++i) {
-	    for (int j = 0; j < collumn; ++j) {
-            matrix[i][j] = rand()%100; // = 1 for sum check
-        }
+		for (int j = 0; j < collumn; ++j) {
+			matrix[i][j] = rand()%100; // = 1 for sum check
+		}
 	}
 }
 
 int** freeMatrix(int **matrix) {
 	free(matrix[0]);
-    free(matrix);
+	free(matrix);
 	return matrix;
 }
 
 int **alloc_2d_init(int rows, int cols) {
-    int *data = (int *)malloc(rows*cols*sizeof(int));
-    int **array= (int **)malloc(rows*sizeof(int*));
-    for (int i=0; i<rows; i++)
-        array[i] = &(data[cols*i]);
-
-    return array;
+	int *data = (int *)malloc(rows*cols*sizeof(int));
+	int **array= (int **)malloc(rows*sizeof(int*));
+	for (int i=0; i<rows; i++)
+		array[i] = &(data[cols*i]);
+	
+	return array;
 }
 
 void get_result(int **A, int **B, int **Res, int num_task) {
