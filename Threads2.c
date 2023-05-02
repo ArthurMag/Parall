@@ -4,9 +4,6 @@
 #include <unistd.h>
 #include <pthread.h>
 
-int M = 1000, N = 1000, L = 1000, p = 4;
-int **mMN, **mNL, **C;
-
 void randomizeMatrix(int **matrix, int row, int collumn) {
 	for (int i = 0; i < row; ++i) {
 	        for (int j = 0; j < collumn; ++j) {
@@ -35,15 +32,21 @@ int** freeMatrix(int **matrix, int row) {
 struct param {
         int* start;
         int* end;
+		int*** matrixA;
+		int*** matrixB;
+		int*** matrixC;
+		int* M;
+		int* N;
+		int* L;
 };
 
-void do_count(int i_st, int i_ed, int j_st, int j_ed) {
+void do_count(int i_st, int i_ed, int j_st, int j_ed, int** A, int** B, int** C, int N) {
 	for (int i = i_st; i < i_ed; ++i) {
 		for (int j = j_st; j < j_ed; ++j) {
 			C[i][j] = 0;
 			for (int k = 0; k < N; ++k) {
-				C[i][j] = C[i][j] + mMN[i][k]*mNL[k][j];
-				}
+				C[i][j] = C[i][j] + A[i][k]*B[k][j];
+			}
 		}
 	}		
 }
@@ -51,11 +54,11 @@ void do_count(int i_st, int i_ed, int j_st, int j_ed) {
 void* do_thread(void* arg) {
 	struct param *my_param = (struct param*)arg;
 	int LocalSum = 0;
-	if (M > L) {
-		do_count(*(*my_param).start, *(*my_param).end, 0, L);
+	if (*(*my_param).M > *(*my_param).L) {
+		do_count(*(*my_param).start, *(*my_param).end, 0, *(*my_param).L, *(*my_param).matrixA, *(*my_param).matrixB, *(*my_param).matrixC, *(*my_param).N);
 	}
 	else {
-		do_count(0, M, *(*my_param).start, *(*my_param).end);
+		do_count(0, *(*my_param).M, *(*my_param).start, *(*my_param).end, *(*my_param).matrixA, *(*my_param).matrixB, *(*my_param).matrixC, *(*my_param).N);
 	}
 	free(arg);
 }
@@ -85,11 +88,12 @@ int get_end(int N, int thread_num, int p) {
 
 void main() {
 	
+	int M = 1000, N = 1000, L = 1000, p = 10;
+	int **mMN, **mNL, **C;
+
 	srand(time(NULL));
 	struct timespec begin;
 	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &begin);
-	//printf("N/p: %d\n", N/p);
-	//printf("N mod p: %d\n", N%p);
 	mMN = mallocMatrix(mMN, M, N);
 	mNL = mallocMatrix(mNL, N, L);
 	C = mallocMatrix(C, M, L);
@@ -116,6 +120,12 @@ void main() {
 			startA[i] = get_start(L, i, p);
 			endA[i] = get_end(L, i, p);
 		}
+		(*arg[i]).matrixA = &mMN;
+		(*arg[i]).matrixB = &mNL;
+		(*arg[i]).matrixC = &C;
+		(*arg[i]).M = &M;
+		(*arg[i]).N = &N;
+		(*arg[i]).L = &L;
 		(*arg[i]).start = &startA[i];
 		(*arg[i]).end = &endA[i];
 		pthread_create(&th[i], NULL, &do_thread, (void*) arg[i]);

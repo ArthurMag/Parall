@@ -4,14 +4,12 @@
 #include <unistd.h>
 #include <pthread.h>
 
-int M = 1000, N = 1000, L = 1000, p = 10;
-int **mMN, **mNL, **C;
 pthread_mutex_t mutex;
 
 void randomizeMatrix(int **matrix, int row, int collumn) {
 	for (int i = 0; i < row; ++i) {
 	        for (int j = 0; j < collumn; ++j) {
-        	        matrix[i][j] = rand()%100; // = 1 for sum check
+        	        matrix[i][j] = /*rand()%100*/1; // = 1 for sum check
 	        }
 	}
 }
@@ -36,15 +34,19 @@ int** freeMatrix(int **matrix, int row) {
 struct param {
         int* start;
         int* end;
+		int*** matrixA;
+		int*** matrixB;
+		int*** matrixC;
+		int* M;
+		int* L;
 };
 
-void* do_thread(void* arg) {
-	struct param *my_param = (struct param*)arg;
+void do_count(int M, int L, int start, int end, int** A, int** B, int** C) {
 	int LocalSum = 0;
 	for (int i = 0; i < M; ++i) {
 		for (int j = 0; j < L; ++j) {
-			for (int k = *(*my_param).start; k < *(*my_param).end; ++k) {
-				LocalSum = LocalSum + mMN[i][k]*mNL[k][j];
+			for (int k = start; k < end; ++k) {
+					LocalSum = LocalSum + A[i][k] * B[k][j];
 				}
 			pthread_mutex_lock(&mutex);
 			C[i][j] = C[i][j] + LocalSum;
@@ -52,6 +54,11 @@ void* do_thread(void* arg) {
 			LocalSum = 0;
 			}
 		}		
+}
+
+void* do_thread(void* arg) {
+	struct param *my_param = (struct param*)arg;
+	do_count(*(*my_param).M, *(*my_param).L, *(*my_param).start, *(*my_param).end, *(*my_param).matrixA, *(*my_param).matrixB, *(*my_param).matrixC);
 	free(arg);
 }
 
@@ -79,12 +86,13 @@ int get_end(int N, int thread_num, int p) {
 }
 
 void main() {
-	
+
+	int **mMN, **mNL, **C;
+	int M = 1000, N = 1000, L = 1000, p = 10;
+
 	srand(time(NULL));
 	struct timespec begin;
 	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &begin);
-	//printf("N/p: %d\n", N/p);
-	//printf("N mod p: %d\n", N%p);
 	mMN = mallocMatrix(mMN, M, N);
 	mNL = mallocMatrix(mNL, N, L);
 	C = mallocMatrix(C, M, L);
@@ -110,6 +118,12 @@ void main() {
 		endA[i] = 0;
 		endA[i] = get_end(N, i, p);
 		(*arg[i]).end = &endA[i];
+		(*arg[i]).matrixA = &mMN;
+		(*arg[i]).matrixB = &mNL;
+		(*arg[i]).matrixC = &C;
+		(*arg[i]).M = &M;
+		(*arg[i]).L = &L;
+		printf("start = %d, end = %d\n", *(*arg[i]).start, *(*arg[i]).end);
 		pthread_create(&th[i], NULL, &do_thread, (void*) arg[i]);
 	}
 
@@ -117,29 +131,20 @@ void main() {
 		pthread_join(th[i], NULL);
 	}
 	pthread_mutex_destroy(&mutex);
-	/*for (int i = 0; i < M; ++i) {
-		for (int j = 0; j < L; ++j) {
-			C[i][j] = 0;
-			for (int k = 0; k < N; ++k) {
-				C[i][j] = C[i][j] + mMN[i][k]*mNL[k][j];
-				//printf("C[%d][%d] = %d\n", i, j, C[i][j]);
-				}
-			}
-		}*/
 	struct timespec end;
 	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
 
 	double time_spent = (end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec)/1000000000.0;
 	printf("Time spent (CPU): %lf\n", time_spent);
 
-	/*int Summ = 0;
+	int Summ = 0;
 	for (int i = 0; i < M; i++) {
 		for (int j = 0; j < L; j++) {
 			Summ = Summ + C[i][j];
 		}
 	}
 
-	printf("Summ: %d\n", Summ);*/ //sum check if needed
+	printf("Summ: %d\n", Summ); //sum check if needed
 
 	mMN = freeMatrix(mMN, M);
 	mNL = freeMatrix(mNL, N);
