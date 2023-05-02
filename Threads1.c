@@ -7,31 +7,31 @@
 
 void randomizeMatrix(int **matrix, int row, int collumn) {
 	for (int i = 0; i < row; ++i) {
-	    for (int j = 0; j < collumn; ++j) {
+		for (int j = 0; j < collumn; ++j) {
 			matrix[i][j] = /*rand()%100*/1; // = 1 for sum check
-        }
+		}
 	}
 }
 
 int** mallocMatrix(int **matrix, int row, int collumn) {
 	matrix = malloc(sizeof(int*) * row);
 	for (int i = 0; i < row; ++i) {
-        matrix[i] = malloc(sizeof(int) * collumn);
+		matrix[i] = malloc(sizeof(int) * collumn);
 	}
 	return matrix;
 }
 
 int** freeMatrix(int **matrix, int row) {
-    for (int i = 0; i < row; ++i) {
-        free(matrix[i]);
-    }
-    free(matrix);
+	for (int i = 0; i < row; ++i) {
+		free(matrix[i]);
+	}
+	free(matrix);
 	return matrix;
 }
 
 struct param {
-    int* start;
-    int* end;
+	int* start;
+	int* end;
 	int*** matrixA;
 	int*** matrixB;
 	int* M;
