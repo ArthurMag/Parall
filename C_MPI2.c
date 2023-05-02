@@ -21,12 +21,12 @@ int** freeMatrix(int **matrix) {
 }
 
 int **alloc_2d_init(int rows, int cols) {
-    int *data = (int *)malloc(rows*cols*sizeof(int));
-    int **array= (int **)malloc(rows*sizeof(int*));
-    for (int i=0; i<rows; i++)
-        array[i] = &(data[cols*i]);
+	int *data = (int *)malloc(rows*cols*sizeof(int));
+	int **array= (int **)malloc(rows*sizeof(int*));
+	for (int i=0; i<rows; i++)
+		array[i] = &(data[cols*i]);
 
-    return array;
+	return array;
 }
 
 void get_result(int **A, int **B, int **Res, int num_task) {
